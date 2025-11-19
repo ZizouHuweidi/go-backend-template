@@ -1,0 +1,372 @@
+[run]
+  deadline = "1m"
+  tests = true
+
+[linters]
+  disable-all = true
+  enable = [
+    "asasalint",
+    "asciicheck",
+    "bidichk",
+    "bodyclose",
+    "containedctx",
+    "contextcheck",
+    # This is probably worthwhile, but there are a number of false positives
+    # that would need to be addressed.
+    "dupword",
+    "durationcheck",
+    "errcheck",
+    "errchkjson",
+    "errname",
+    "errorlint",
+    # Causes a panic.
+    # "execinquery",
+    "exhaustive",
+    # We often don't initialize all of the struct fields. This is fine
+    # generally
+    # "exhaustruct",
+    "exportloopref",
+    "forbidigo",
+    # We tried this linter but most places we do forced type asserts are
+    # pretty safe, e.g., an atomic.Value when everything is encapsulated
+    # in a small package.
+    # "forcetypeassert",
+    "goconst",
+    "gocyclo",
+    "gocritic",
+    # "godot",
+    # "gofumpt",
+    "gomodguard",
+    "gosec",
+    "gosimple",
+    "govet",
+    "grouper",
+    "ineffassign",
+    "lll",
+    "makezero",
+    # Maintainability Index. Seems like it could be a good idea, but a
+    # lot of things fail and we would need to make some decisions about
+    # what to allow.
+    "maintidx",
+    "misspell",
+    "nakedret",
+    "nilerr",
+    "noctx",
+    "nolintlint",
+    # We occasionally use named returns for documentation, which is helpful.
+    # Named returns are only really a problem when used in conjunction with
+    # a bare return statement. I _think_ Revive's bare-return covers that
+    # case.
+    "nonamedreturns",
+    "nosprintfhostport",
+    "predeclared",
+    # XXX - disabled due to lack of 1.18 support.
+    # "rowserrcheck",
+    "sqlclosecheck",
+    "staticcheck",
+    "stylecheck",
+    "tenv",
+    "tparallel",
+    "typecheck",
+    "unconvert",
+    "unparam",
+    "unused",
+    "usestdlibvars",
+    "vetshadow",
+    "wastedassign",
+    # "wrapcheck",
+  ]
+
+[linters-settings.stylecheck]
+    checks = [
+        "all",
+        "-ST1000",
+        "-ST1003",
+    ]
+    
+[linters-settings.errcheck]
+    # Don't allow setting of error to the blank identifier. If there is a legitimate
+    # reason, there should be a nolint with an explanation.
+    check-blank = true
+
+    exclude-functions = [
+        # If we are rolling back a transaction, we are often already in an error
+        # state.
+        '(*database/sql.Tx).Rollback',
+
+        # We often don't care if removing a file failed (e.g., it doesn't exist)
+        'os.Remove',
+        'os.RemoveAll',
+    ]
+
+    # Ignoring Close so that we don't have to have a bunch of
+    # `defer func() { _ = r.Close() }()` constructs when we
+    # don't actually care about the error.
+    ignore = "Close,fmt:.*"
+
+[linters-settings.errorlint]
+    errorf = true
+    asserts = true
+    comparison = true
+
+[linters-settings.exhaustive]
+    default-signifies-exhaustive = true
+
+[linters-settings.gocritic]
+    enabled-checks = [
+        "appendAssign",
+        "appendCombine",
+        "argOrder",
+        "assignOp",
+        "badCall",
+        "badCond",
+        "badLock",
+        "badRegexp",
+        "badSorting",
+        "boolExprSimplify",
+        "builtinShadow",
+        "builtinShadowDecl",
+        "captLocal",
+        "caseOrder",
+        "codegenComment",
+        # "commentedOutCode",
+        # "commentedOutImport",
+        # "commentFormatting",
+        "defaultCaseOrder",
+        # Revive's defer rule already captures this. This caught no extra cases.
+        "deferInLoop",
+        "deferUnlambda",
+        "deprecatedComment",
+        "docStub",
+        "dupArg",
+        "dupBranchBody",
+        "dupCase",
+        "dupImport",
+        "dupSubExpr",
+        "dynamicFmtString",
+        "elseif",
+        "emptyDecl",
+        "emptyFallthrough",
+        "emptyStringTest",
+        "equalFold",
+        "evalOrder",
+        "exitAfterDefer",
+        "exposedSyncMutex",
+        "externalErrorReassign",
+        # Given that all of our code runs on Linux and the / separate should
+        # work fine, this seems less important.
+        "filepathJoin",
+        "flagDeref",
+        "flagName",
+        "hexLiteral",
+        "httpNoBody",
+        "hugeParam",
+        "ifElseChain",
+        "importShadow",
+        "indexAlloc",
+        "initClause",
+        "mapKey",
+        "methodExprCall",
+        "nestingReduce",
+        "newDeref",
+        "nilValReturn",
+        "octalLiteral",
+        "offBy1",
+        "paramTypeCombine",
+        "preferDecodeRune",
+        "preferFilepathJoin",
+        "preferFprint",
+        "preferStringWriter",
+        "preferWriteByte",
+        "ptrToRefParam",
+        "rangeExprCopy",
+        "rangeValCopy",
+        "redundantSprint",
+        "regexpMust",
+        "regexpPattern",
+        "regexpSimplify",
+        "ruleguard",
+        "singleCaseSwitch",
+        "sliceClear",
+        "sloppyLen",
+        "sloppyReassign",
+        "returnAfterHttpError",
+        "sloppyTypeAssert",
+        "sortSlice",
+        "sprintfQuotedString",
+        "sqlQuery",
+        "stringsCompare",
+        "stringConcatSimplify",
+        "stringXbytes",
+        "switchTrue",
+        "syncMapLoadAndDelete",
+        "timeExprSimplify",
+        "todoCommentWithoutDetail",
+        "tooManyResultsChecker",
+        "truncateCmp",
+        "typeAssertChain",
+        "typeDefFirst",
+        "typeSwitchVar",
+        "typeUnparen",
+        "underef",
+        "unlabelStmt",
+        "unlambda",
+        # "unnamedResult",
+        "unnecessaryBlock",
+        "unnecessaryDefer",
+        "unslice",
+        "valSwap",
+        "weakCond",
+        # Covered by nolintlint
+        # "whyNoLint"
+        "wrapperFunc",
+        "yodaStyleExpr",
+    ]
+
+[linters-settings.gofumpt]
+    extra-rules = true
+    lang-version = "1.20"
+
+[linters-settings.gomodguard]
+  [[linters-settings.gomodguard.blocked.modules]]
+  [linters-settings.gomodguard.blocked.modules."github.com/BurntSushi/toml"]
+    recommendations = ["github.com/pelletier/go-toml/v2"]
+    reason = "This library panics frequently on invalid input."
+
+  [[linters-settings.gomodguard.blocked.modules]]
+  [linters-settings.gomodguard.blocked.modules."github.com/gofrs/uuid"]
+    recommendations = ["github.com/google/uuid"]
+
+  [[linters-settings.gomodguard.blocked.modules]]
+  [linters-settings.gomodguard.blocked.modules."github.com/satori/go.uuid"]
+    recommendations = ["github.com/google/uuid"]
+
+  [[linters-settings.gomodguard.blocked.modules]]
+  [linters-settings.gomodguard.blocked.modules."github.com/lib/pq"]
+    recommendations = ["github.com/jackc/pgx"]
+    reason = "This library is no longer actively maintained."
+
+  [[linters-settings.gomodguard.blocked.modules]]
+  [linters-settings.gomodguard.blocked.modules."github.com/neilotoole/errgroup"]
+    recommendations = ["golang.org/x/sync/errgroup"]
+    reason = "This library can lead to subtle deadlocks in certain use cases."
+
+  [[linters-settings.gomodguard.blocked.modules]]
+  [linters-settings.gomodguard.blocked.modules."encoding/json"]
+    recommendations = ["github.com/goccy/go-json"]
+    reason = "goccy/go-json is choosen over std lib implmentation"
+
+  [[linters-settings.gomodguard.blocked.versions]]
+  [linters-settings.gomodguard.blocked.versions."github.com/jackc/pgconn"]
+    reason = "Use github.com/jackc/pgx/v5"
+
+  [[linters-settings.gomodguard.blocked.versions]]
+  [linters-settings.gomodguard.blocked.versions."github.com/jackc/pgtype"]
+    reason = "Use github.com/jackc/pgx/v5"
+
+  [[linters-settings.gomodguard.blocked.versions]]
+  [linters-settings.gomodguard.blocked.versions."github.com/jackc/pgx"]
+    version = "< 5.0.0"
+    reason = "Use github.com/jackc/pgx/v5"
+
+[linters-settings.gosec]
+    excludes = [
+        # G104 - "Audit errors not checked." We use errcheck for this.
+        "G104",
+
+        # G306 - "Expect WriteFile permissions to be 0600 or less".
+        "G306",
+
+        # Prohibits defer (*os.File).Close, which we allow when reading from file.
+        "G307",
+    ]
+
+[linters-settings.govet]
+    "enable-all" = true
+
+[linters-settings.lll]
+    line-length = 80
+    tab-width = 4
+
+[linters-settings.nolintlint]
+    allow-leading-space = false
+    allow-unused = false
+    allow-no-explanation = ["errorlint", "lll", "misspell", "gosec"]
+    require-explanation = false
+    require-specific = true
+
+[linters-settings.unparam]
+    check-exported = true
+
+[issues]
+exclude-use-default = false
+
+  # This goes off for MD5 usage, which we use heavily
+  [[issues.exclude-rules]]
+  text = "weak cryptographic primitive"
+  linters = ["gosec"]
+
+  [[issues.exclude-rules]]
+  linters = [
+    "bodyclose"
+  ]
+  # This rule doesn't really make sense for tests where we don't have an open
+  # connection and we might be passing around the response for other reasons.
+  path = "_test.go"
+
+  [[issues.exclude-rules]]
+  linters = [
+    "govet"
+  ]
+  # we want to enable almost all govet rules. It is easier to just filter out
+  # the ones we don't want:
+  #
+  # * fieldalignment - way too noisy. Although it is very useful in particular
+  #   cases where we are trying to use as little memory as possible, having
+  #   it go off on every struct isn't helpful.
+  # * shadow - although often useful, it complains about _many_ err
+  #   shadowing assignments and some others where shadowing is clear.
+  text = "^(fieldalignment|shadow)"
+
+  [[issues.exclude-rules]]
+  linters = [
+    "govet"
+  ]
+  text = "shadow: declaration of \"err\" shadows declaration"
+
+  [[issues.exclude-rules]]
+  linters = [
+    "contextcheck",
+    "nilerr",
+    "wrapcheck",
+  ]
+  path = "_test.go"
+
+  [[issues.exclude-rules]]
+  linters = [
+    "stylecheck",
+  ]
+  # ST1016 - methods on the same type should have the same receiver name.
+  #    easyjson doesn't interact well with this.
+  text = "ST1016"
+
+  [[issues.exclude-rules]]
+  linters = [
+    "staticcheck",
+  ]
+  # SA5008: unknown JSON option "intern" - easyjson specific option.
+  text = 'SA5008: unknown JSON option "intern"'
+
+  [[issues.exclude-rules]]
+  linters = [
+    "wrapcheck",
+  ]
+  path = "_easyjson.go"
+
+  [[issues.exclude-rules]]
+  linters = [
+    "gocritic",
+  ]
+  source = "Chmod|WriteFile"
+  text = "octalLiteral"
+

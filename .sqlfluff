@@ -1,0 +1,338 @@
+[sqlfluff]
+# rules = core
+verbose = 0
+nocolor = true
+encoding = utf-8
+dialect = postgres
+max_line_length = 120
+ignore = templating
+warnings = None
+
+# LT05,  layout.long_lines
+# AM04,  ambiguous.column_count
+exclude_rules = LT05, AM04
+
+[sqlfluff:indentation]
+indent_unit = space
+tab_space_size = 4
+indented_then = true
+indented_ctes = true
+indented_joins = true
+indented_using_on = true
+indented_on_contents = true
+allow_implicit_indents = true
+# template_blocks_indent = true
+skip_indentation_in = script_content
+trailing_comments = before
+
+[sqlfluff:layout:type:column_constraint_segment]
+align_within = create_table_statement
+
+[sqlfluff:layout:type:data_type]
+spacing_before = align
+align_within = create_table_statement
+
+[sqlfluff:layout:type:alias_expression]
+spacing_before = align
+align_within = select_clause
+spacing_after = touch
+
+[sqlfluff:layout:type:comma]
+spacing_before = touch
+line_position = trailing
+
+[sqlfluff:layout:type:binary_operator]
+spacing_within = touch
+line_position = trailing
+
+[sqlfluff:layout:type:statement_terminator]
+spacing_before = touch
+line_position = trailing
+
+[sqlfluff:layout:type:end_of_file]
+spacing_before = touch
+
+[sqlfluff:layout:type:set_operator]
+line_position = alone:strict
+
+[sqlfluff:layout:type:start_bracket]
+spacing_after = touch
+
+[sqlfluff:layout:type:end_bracket]
+spacing_before = touch
+
+[sqlfluff:layout:type:start_square_bracket]
+spacing_after = touch
+
+[sqlfluff:layout:type:end_square_bracket]
+spacing_before = touch
+
+[sqlfluff:layout:type:start_angle_bracket]
+spacing_after = touch
+
+[sqlfluff:layout:type:end_angle_bracket]
+spacing_before = touch
+
+[sqlfluff:layout:type:casting_operator]
+spacing_before = touch
+spacing_after = touch:inline
+
+[sqlfluff:layout:type:slice]
+spacing_before = touch
+spacing_after = touch
+
+[sqlfluff:layout:type:comparison_operator]
+spacing_within = touch
+line_position = leading
+
+[sqlfluff:layout:type:assignment_operator]
+spacing_within = touch
+line_position = leading
+
+[sqlfluff:layout:type:object_reference]
+spacing_within = touch:inline
+
+[sqlfluff:layout:type:numeric_literal]
+spacing_within = touch:inline
+
+[sqlfluff:layout:type:sign_indicator]
+spacing_after = touch:inline
+
+[sqlfluff:layout:type:tilde]
+spacing_after = touch:inline
+
+[sqlfluff:layout:type:function_name]
+spacing_within = touch:inline
+spacing_after = touch:inline
+
+[sqlfluff:layout:type:array_type]
+spacing_within = touch:inline
+
+[sqlfluff:layout:type:typed_array_literal]
+spacing_within = touch
+
+[sqlfluff:layout:type:sized_array_type]
+spacing_within = touch
+
+[sqlfluff:layout:type:struct_type]
+spacing_within = touch:inline
+
+[sqlfluff:layout:type:bracketed_arguments]
+spacing_before = touch:inline
+
+[sqlfluff:layout:type:typed_struct_literal]
+spacing_within = touch
+
+[sqlfluff:layout:type:semi_structured_expression]
+spacing_within = touch:inline
+spacing_before = touch:inline
+
+[sqlfluff:layout:type:array_accessor]
+spacing_before = touch:inline
+
+[sqlfluff:layout:type:colon]
+spacing_before = touch
+
+[sqlfluff:layout:type:comment]
+spacing_before = any
+spacing_after = any
+
+[sqlfluff:layout:type:placeholder]
+# Placeholders exist "outside" the rendered SQL syntax
+# so we shouldn't enforce any particular spacing around
+# them.
+spacing_before = any
+spacing_after = any
+
+[sqlfluff:layout:type:common_table_expression]
+# The definition part of a CTE should fit on one line where possible.
+# For users which regularly define column names in their CTEs they
+# may which to relax this config to just `single`.
+spacing_within = single:inline
+
+# By setting a selection of clauses to "alone", we hint to the reflow
+# algorithm that in the case of a long single line statement, the
+# first place to add newlines would be around these clauses.
+# Setting this to "alone:strict" would always _force_ line breaks
+# around them even if the line isn't too long.
+[sqlfluff:layout:type:select_clause]
+line_position = alone
+
+[sqlfluff:layout:type:where_clause]
+line_position = alone
+
+[sqlfluff:layout:type:from_clause]
+line_position = alone
+
+[sqlfluff:layout:type:join_clause]
+line_position = alone
+
+[sqlfluff:layout:type:groupby_clause]
+line_position = alone
+
+[sqlfluff:layout:type:orderby_clause]
+# NOTE: Order by clauses appear in many places other than in a select
+# clause. To avoid unexpected behaviour we use `leading` in this
+# case rather than `alone`.
+line_position = leading
+
+[sqlfluff:layout:type:having_clause]
+line_position = alone
+
+[sqlfluff:layout:type:limit_clause]
+line_position = alone
+
+# Template loop tokens shouldn't dictate spacing around them.
+# [sqlfluff:layout:type:template_loop]
+# spacing_before = any
+# spacing_after = any
+
+# Some rules can be configured directly from the config common to other rules
+[sqlfluff:rules]
+allow_scalar = true
+single_table_references = consistent
+unquoted_identifiers_policy = all
+
+[sqlfluff:rules:capitalisation.keywords]
+# Keywords
+capitalisation_policy = upper
+# Comma separated list of words to ignore for this rule
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:capitalisation.identifiers]
+# Unquoted identifiers
+extended_capitalisation_policy = consistent 
+# Comma separated list of words to ignore for this rule
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:capitalisation.functions]
+capitalisation_policy = consistent
+# Function names
+extended_capitalisation_policy = consistent 
+# Comma separated list of words to ignore for this rule
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:capitalisation.literals]
+# Null & Boolean Literals
+capitalisation_policy = upper
+# Comma separated list of words to ignore for this rule
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:capitalisation.types]
+# Data Types
+extended_capitalisation_policy = upper
+# Comma separated list of words to ignore for this rule
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:ambiguous.join]
+# Fully qualify JOIN clause
+fully_qualify_join_types = inner
+
+[sqlfluff:rules:ambiguous.column_references]
+# GROUP BY/ORDER BY column references
+group_by_and_order_by_style = consistent
+
+[sqlfluff:rules:aliasing.table]
+# Aliasing preference for tables
+aliasing = explicit
+
+[sqlfluff:rules:aliasing.column]
+# Aliasing preference for columns
+aliasing = explicit
+
+[sqlfluff:rules:aliasing.length]
+min_alias_length = None
+max_alias_length = None
+
+[sqlfluff:rules:aliasing.forbid]
+# Avoid table aliases in from clauses and join conditions.
+# Disabled by default for all dialects unless explicitly enabled.
+# We suggest instead using aliasing.length (AL06) in most cases.
+force_enable = false
+
+[sqlfluff:rules:convention.select_trailing_comma]
+# Trailing commas
+select_clause_trailing_comma = forbid
+
+[sqlfluff:rules:convention.count_rows]
+# Consistent syntax to count all rows
+prefer_count_1 = false
+prefer_count_0 = false
+
+[sqlfluff:rules:convention.terminator]
+# Semi-colon formatting approach
+multiline_newline = false
+require_final_semicolon = false
+
+[sqlfluff:rules:convention.blocked_words]
+# Comma separated list of blocked words that should not be used
+blocked_words = None
+blocked_regex = None
+match_source = false
+
+[sqlfluff:rules:convention.quoted_literals]
+# Consistent usage of preferred quotes for quoted literals
+preferred_quoted_literal_style = consistent
+# Disabled for dialects that do not support single and double quotes for quoted literals (e.g. Postgres)
+force_enable = false
+
+[sqlfluff:rules:convention.casting_style]
+# SQL type casting
+preferred_type_casting_style = consistent
+
+[sqlfluff:rules:references.from]
+# References must be in FROM clause
+# Disabled for some dialects (e.g. bigquery)
+force_enable = false
+
+[sqlfluff:rules:references.qualification]
+# Comma separated list of words to ignore for this rule
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:references.consistent]
+# References must be consistently used
+# Disabled for some dialects (e.g. bigquery)
+force_enable = false
+
+[sqlfluff:rules:references.keywords]
+# Keywords should not be used as identifiers.
+unquoted_identifiers_policy = aliases
+quoted_identifiers_policy = none
+# Comma separated list of words to ignore for this rule
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:references.special_chars]
+# Special characters in identifiers
+unquoted_identifiers_policy = all
+quoted_identifiers_policy = all
+allow_space_in_identifier = false
+additional_allowed_characters = None
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:references.quoting]
+# Policy on quoted and unquoted identifiers
+prefer_quoted_identifiers = false
+prefer_quoted_keywords = false
+ignore_words = None
+ignore_words_regex = None
+force_enable = false
+
+[sqlfluff:rules:layout.long_lines]
+# Line length
+ignore_comment_lines = false
+ignore_comment_clauses = false
+
+[sqlfluff:rules:layout.select_targets]
+wildcard_policy = single
+
+[sqlfluff:rules:structure.subquery]
+# By default, allow subqueries in from clauses, but not join clauses
+forbid_subquery_in = join

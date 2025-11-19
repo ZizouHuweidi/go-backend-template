@@ -1,0 +1,37 @@
+# Files
+.dockerignore
+.editorconfig
+.gitignore
+.env.example
+Dockerfile
+Makefile
+LICENSE
+.air.toml
+**/*.md
+**/*_test.go
+docker-compose*.yaml
+.DS_Store
+thumb.db
+
+# Folders
+.idea/
+tmp/
+vendor/
+.github/
+build/
+
+public/**/*
+!public/**/*.html
+!public/*.png
+!public/*.ico
+!public/*.svg
+!public/*.webmanifest
+!public/*.css
+!public/**/*.json
+!public/**/.gitignore
+
+private/**/*
+!private/logo.png
+!private/**/*.ttf
+!private/**/*.html
+!private/**/.gitignore

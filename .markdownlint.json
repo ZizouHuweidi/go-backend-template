@@ -1,0 +1,11 @@
+{
+	"default": true,
+	"MD007": {
+		"indent": 4
+	},
+	"no-duplicate-header": {
+		"siblings_only": true
+	},
+	"no-hard-tabs": false,
+	"whitespace": false
+}
