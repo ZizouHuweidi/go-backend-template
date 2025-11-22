@@ -31,6 +31,18 @@ func (h *Handler) RegisterRoutes(g *echo.Group) {
 	g.POST("/auth/reset-password", h.ResetPassword)
 }
 
+// Register godoc
+// @Summary Register a new user
+// @Description Register a new user with email, username, and password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body user.RegisterRequest true "Register Request"
+// @Success 201 {object} response.Response{data=jwt.TokenPair}
+// @Failure 400 {object} response.Response
+// @Failure 409 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /auth/register [post]
 func (h *Handler) Register(c echo.Context) error {
 	var req user.RegisterRequest
 	if err := c.Bind(&req); err != nil {
@@ -52,6 +64,18 @@ func (h *Handler) Register(c echo.Context) error {
 	return response.JSON(c, http.StatusCreated, tokens, nil)
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Login with email and password to receive access and refresh tokens
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body user.LoginRequest true "Login Request"
+// @Success 200 {object} response.Response{data=jwt.TokenPair}
+// @Failure 400 {object} response.Response
+// @Failure 401 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /auth/login [post]
 func (h *Handler) Login(c echo.Context) error {
 	var req user.LoginRequest
 	if err := c.Bind(&req); err != nil {
@@ -77,6 +101,18 @@ type RefreshRequest struct {
 	RefreshToken string `json:"refresh_token" validate:"required"`
 }
 
+// RefreshToken godoc
+// @Summary Refresh access token
+// @Description Use a valid refresh token to get a new access token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body RefreshRequest true "Refresh Request"
+// @Success 200 {object} response.Response{data=jwt.TokenPair}
+// @Failure 400 {object} response.Response
+// @Failure 401 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /auth/refresh [post]
 func (h *Handler) RefreshToken(c echo.Context) error {
 	var req RefreshRequest
 	if err := c.Bind(&req); err != nil {
@@ -102,6 +138,17 @@ type RecoverPasswordRequest struct {
 	Email string `json:"email" validate:"required,email"`
 }
 
+// RecoverPassword godoc
+// @Summary Request password recovery
+// @Description Send a password recovery email to the user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body RecoverPasswordRequest true "Recover Password Request"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /auth/recover-password [post]
 func (h *Handler) RecoverPassword(c echo.Context) error {
 	var req RecoverPasswordRequest
 	if err := c.Bind(&req); err != nil {
@@ -125,6 +172,18 @@ type ResetPasswordRequest struct {
 	NewPassword string `json:"new_password" validate:"required,min=8"`
 }
 
+// ResetPassword godoc
+// @Summary Reset password
+// @Description Reset the user's password using a valid token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body ResetPasswordRequest true "Reset Password Request"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 401 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /auth/reset-password [post]
 func (h *Handler) ResetPassword(c echo.Context) error {
 	var req ResetPasswordRequest
 	if err := c.Bind(&req); err != nil {

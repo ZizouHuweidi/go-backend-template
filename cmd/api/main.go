@@ -19,6 +19,20 @@ import (
 	"template/internal/validator"
 )
 
+// @title Go Backend Template API
+// @version 1.0
+// @description A production-ready Go backend starter template.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
 	// 1. Load Config
 	cfg, err := config.Load()

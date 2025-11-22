@@ -50,6 +50,11 @@ quick-start: up logs
 # QUALITY CONTROL
 # ==================================================================================== #
 
+## swagger: generate swagger docs
+.PHONY: swagger
+swagger:
+	go run github.com/swaggo/swag/cmd/swag init -g cmd/api/main.go
+
 ## test: run all tests
 .PHONY: test
 test:

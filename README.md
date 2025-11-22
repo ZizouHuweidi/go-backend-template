@@ -5,18 +5,18 @@ A production-ready, opinionated Go backend starter template designed for scalabi
 ## Features
 
 - **Framework**: [Echo](https://echo.labstack.com/) v4 - High performance, extensible, minimalist Go web framework.
-- **Database**: PostgreSQL 16+ with [sqlx](https://github.com/jmoiron/sqlx) and [squirrel](https://github.com/Masterminds/squirrel) for type-safe query building.
+- **Database**: PostgreSQL with [sqlx](https://github.com/jmoiron/sqlx) and [squirrel](https://github.com/Masterminds/squirrel) for type-safe query building.
 - **Authentication**: JWT-based auth with Refresh Token Rotation and Family Tracking.
 - **Password Recovery**: Email-based password recovery flow.
-- **Caching & Rate Limiting**: Redis 7.
+- **Caching & Rate Limiting**: Redis
 - **Observability**: Full OpenTelemetry (OTel) integration with the LGTM stack (Loki, Grafana, Tempo, Prometheus).
 - **Logging**: Structured logging with `slog`.
 - **Validation**: Request validation using `go-playground/validator`.
+- **Documentation**: Auto-generated API docs with Swagger UI.
 - **Reverse Proxy**: [Traefik](https://traefik.io/) with automatic HTTPS and load balancing.
 - **Development**: Hot-reloading with Air, Docker Compose overrides.
 - **Tools**: pgAdmin (DB GUI) and MailHog (Email testing).
 - **Migrations**: Database migrations with `golang-migrate`.
-- **UUIDv7**: Modern, time-sortable UUIDs for primary keys.
 
 ## Prerequisites
 
@@ -106,7 +106,21 @@ make up-full
 
 ## API Documentation
 
-A [Bruno](https://www.usebruno.com/) collection is available in `api/collection/collection.json`. Import this into Bruno to test the endpoints.
+The API is documented using [Swagger/OpenAPI](https://swagger.io/).
+
+### Swagger UI
+
+Start the application and visit:
+
+```
+http://localhost:8080/swagger/index.html
+```
+
+Or via Traefik:
+
+```
+http://api.localhost.tiangolo.com/swagger/index.html
+```
 
 ### Key Endpoints
 

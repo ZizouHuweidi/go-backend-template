@@ -5,7 +5,10 @@ import (
 
 	customMiddleware "template/internal/middleware"
 
+	_ "template/docs" // Import docs
+
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 func (s *Server) RegisterRoutes() {
@@ -14,6 +17,9 @@ func (s *Server) RegisterRoutes() {
 	e.GET("/health", s.healthHandler)
 
 	api := e.Group("/api/v1")
+
+	// Swagger
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	// Auth Routes
 	s.AuthHandler.RegisterRoutes(api)
