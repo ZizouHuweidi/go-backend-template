@@ -1,0 +1,61 @@
+{
+  "name": "Go Backend Template",
+  "version": "1",
+  "items": [
+    {
+      "type": "http",
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "type": "http",
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/auth/register",
+        "body": {
+          "mode": "json",
+          "json": "{\"email\": \"test@example.com\", \"username\": \"testuser\", \"password\": \"password123\"}"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/auth/login",
+        "body": {
+          "mode": "json",
+          "json": "{\"email\": \"test@example.com\", \"password\": \"password123\"}"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Get Me",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/v1/users/me",
+        "headers": [
+          {
+            "name": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ]
+      }
+    }
+  ],
+  "environments": [
+    {
+      "name": "Local",
+      "variables": {
+        "baseUrl": "http://localhost:8080",
+        "accessToken": ""
+      }
+    }
+  ]
+}

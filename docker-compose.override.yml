@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  proxy:
+    image: traefik:v3.0
+    ports:
+      - "80:80"
+      - "8090:8080" # Dashboard
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.constraints=Label(`traefik.constraint-label`, `traefik-public`)"
+      - "--entrypoints.http.address=:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=true"
+      - "traefik.constraint-label=traefik-public"
+      - "traefik.http.middlewares.https-redirect.contenttype.autodetect=false" # Dummy for dev
+    networks:
+      - traefik-public
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: "no"
+    command: [ "air", "-c", ".air.toml" ]
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080" # Direct access
+    environment:
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+      - SMTP_SENDER=noreply@example.com
+
+  postgres:
+    restart: "no"
+    ports:
+      - "5432:5432"
+
+  redis:
+    restart: "no"
+    ports:
+      - "6379:6379"
+
+  pgadmin:
+    restart: "no"
+    ports:
+      - "5050:80"
+
+  mailhog:
+    image: mailhog/mailhog
+    restart: "no"
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # UI
+    networks:
+      - backend
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+      - "traefik.constraint-label=traefik-public"
+      - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
+      - "traefik.http.routers.mailhog-http.rule=Host(`mailhog.${DOMAIN?Variable not set}`)"
+      - "traefik.http.routers.mailhog-http.entrypoints=http"
+
+networks:
+  traefik-public:
+    external: false

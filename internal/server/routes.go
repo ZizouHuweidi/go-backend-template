@@ -3,38 +3,31 @@ package server
 import (
 	"net/http"
 
+	customMiddleware "template/internal/middleware"
+
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
-func (s *Server) RegisterRoutes() http.Handler {
-	e := echo.New()
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"https://*", "http://*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
-		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		AllowCredentials: true,
-		MaxAge:           300,
-	}))
-
-	e.GET("/", s.HelloWorldHandler)
+func (s *Server) RegisterRoutes() {
+	e := s.Echo
 
 	e.GET("/health", s.healthHandler)
 
-	return e
-}
+	api := e.Group("/api/v1")
 
-func (s *Server) HelloWorldHandler(c echo.Context) error {
-	resp := map[string]string{
-		"message": "Hello World",
-	}
+	// Auth Routes
+	s.AuthHandler.RegisterRoutes(api)
 
-	return c.JSON(http.StatusOK, resp)
+	// Protected Routes
+	protected := api.Group("")
+	protected.Use(customMiddleware.Auth(s.Config.JWTSecret))
+	s.UserHandler.RegisterRoutes(protected)
 }
 
 func (s *Server) healthHandler(c echo.Context) error {
-	return c.JSON(http.StatusOK, s.db.Health())
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": "up",
+		"db":     s.DB.Health(),
+		"redis":  s.Redis.Health(),
+	})
 }

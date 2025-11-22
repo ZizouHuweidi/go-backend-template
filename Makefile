@@ -8,98 +8,118 @@ help:
 	@echo 'Usage:'
 	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /'
 
+# ==================================================================================== #
+# DEVELOPMENT
+# ==================================================================================== #
+
+## up: start core services (App, DB, Redis, Traefik) in Dev mode
+.PHONY: up
+up:
+	docker-compose up -d
+
+## up-prod: start core services in Prod mode (no overrides)
+.PHONY: up-prod
+up-prod:
+	docker-compose -f docker-compose.yml up -d
+
+## up-traefik: start production proxy
+.PHONY: up-traefik
+up-traefik:
+	docker-compose -f docker-compose.traefik.yml up -d
+
+## up-full: start all services including observability stack
+.PHONY: up-full
+up-full:
+	docker-compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.observability.yml up -d
+
+## down: stop all services
+.PHONY: down
+down:
+	docker-compose -f docker-compose.yml -f docker-compose.observability.yml down --remove-orphans
+
+## logs: view logs for all services
+.PHONY: logs
+logs:
+	docker-compose -f docker-compose.yml -f docker-compose.observability.yml logs -f
+
+## quick-start: start core services and view logs
+.PHONY: quick-start
+quick-start: up logs
 
 # ==================================================================================== #
 # QUALITY CONTROL
 # ==================================================================================== #
 
-## audit: run quality control checks
-.PHONY: audit
-audit: test
-	go mod tidy -diff
-	go mod verify
-	test -z "$(shell gofmt -l .)" 
-	go vet ./...
-	go run honnef.co/go/tools/cmd/staticcheck@latest -checks=all,-ST1000,-U1000 ./...
-	go run golang.org/x/vuln/cmd/govulncheck@latest ./...
-
 ## test: run all tests
 .PHONY: test
 test:
-	go test -v -race -buildvcs ./...
+	go test -v -race ./...
 
-## test/cover: run all tests and display coverage
-.PHONY: test/cover
-test/cover:
-	go test -v -race -buildvcs -coverprofile=/tmp/coverage.out ./...
-	go tool cover -html=/tmp/coverage.out
+## lint: run linters
+.PHONY: lint
+lint:
+	golangci-lint run
 
-## upgradeable: list direct dependencies that have upgrades available
-.PHONY: upgradeable
-upgradeable:
-	@go run github.com/oligot/go-mod-upgrade@latest
-
-# ==================================================================================== #
-# DEVELOPMENT
-# ==================================================================================== #
+## lint-fix: run linters and fix issues
+.PHONY: lint-fix
+lint-fix:
+	golangci-lint run --fix
 
 ## tidy: tidy modfiles and format .go files
 .PHONY: tidy
 tidy:
-	go mod tidy -v
+	go mod tidy
 	go fmt ./...
 
-## build: build the cmd/api application
+# ==================================================================================== #
+# BUILD & RUN
+# ==================================================================================== #
+
+## build: build the binary
 .PHONY: build
 build:
-	go build -o=/tmp/bin/api ./cmd/api
-	
-## run: run the cmd/api application
+	go build -o bin/server ./cmd/api
+
+## run: run the binary (requires DB on localhost)
 .PHONY: run
 run: build
-	/tmp/bin/api
+	./bin/server
 
-## run/live: run the application with reloading on file changes
-.PHONY: run/live
-run/live:
-	go run github.com/cosmtrek/air@v1.43.0 \
-		--build.cmd "make build" --build.bin "/tmp/bin/api" --build.delay "100" \
-		--build.exclude_dir "" \
-		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
-		--misc.clean_on_exit "true"
-
+## docker-up-prod: start production containers
+.PHONY: docker-up-prod
+docker-up-prod:
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 # ==================================================================================== #
-# SQL MIGRATIONS
+# MIGRATIONS
 # ==================================================================================== #
 
-## migrations/new name=$1: create a new database migration
-.PHONY: migrations/new
-migrations/new:
-	go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest create -seq -ext=.sql -dir=./assets/migrations ${name}
+## migrate-create name=$1: create a new migration file
+.PHONY: migrate-create
+migrate-create:
+	migrate create -seq -ext=.sql -dir=./migrations ${name}
 
-## migrations/up: apply all up database migrations
-.PHONY: migrations/up
-migrations/up:
-	go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest -path=./assets/migrations -database="postgres://${DB_DSN}" up
+## migrate-up: apply all up migrations
+.PHONY: migrate-up
+migrate-up:
+	migrate -path=./migrations -database="${DB_DSN}" up
 
-## migrations/down: apply all down database migrations
-.PHONY: migrations/down
-migrations/down:
-	go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest -path=./assets/migrations -database="postgres://${DB_DSN}" down
+## migrate-down steps=$1: rollback the last migration (default 1 step)
+.PHONY: migrate-down
+migrate-down:
+	migrate -path=./migrations -database="${DB_DSN}" down ${steps}
 
-## migrations/goto version=$1: migrate to a specific version number
-.PHONY: migrations/goto
-migrations/goto:
-	go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest -path=./assets/migrations -database="postgres://${DB_DSN}" goto ${version}
+## migrate-status: check migration status
+.PHONY: migrate-status
+migrate-status:
+	migrate -path=./migrations -database="${DB_DSN}" version
 
-## migrations/force version=$1: force database migration
-.PHONY: migrations/force
-migrations/force:
-	go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest -path=./assets/migrations -database="postgres://${DB_DSN}" force ${version}
+## migrate-goto version=$1: migrate to a specific version
+.PHONY: migrate-goto
+migrate-goto:
+	migrate -path=./migrations -database="${DB_DSN}" goto ${version}
 
-## migrations/version: print the current in-use migration version
-.PHONY: migrations/version
-migrations/version:
-	go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest -path=./assets/migrations -database="postgres://${DB_DSN}" version
-
+## migrate-force version=$1: force a specific version
+.PHONY: migrate-force
+migrate-force:
+	migrate -path=./migrations -database="${DB_DSN}" force ${version}
